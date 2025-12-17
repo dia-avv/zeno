@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="0; url=/zeno/" />
+    <script>
+      // For client-side routing: redirect to index.html and preserve path
+      var l = window.location;
+      var path = l.pathname.replace(/^\/zeno/, "");
+      window.location.replace(
+        "/zeno/?redirect=" + encodeURIComponent(path + l.search + l.hash)
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
