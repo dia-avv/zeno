@@ -107,8 +107,6 @@ export default function Devices() {
   }
 
   async function handleAdd(newDevice) {
-    // Expecting AddDeviceModal to send something like:
-    // { name, room, icon, color, enabled, reminderTime }
     if (!session?.user?.id) {
       console.error("No user session, cannot add device");
       return;
@@ -158,7 +156,7 @@ export default function Devices() {
         variant="primary"
         onClick={() => setIsModalOpen(true)}
         icon={<IconPlus />}
-        style={{ height: "55px", backgroundColor: "var(--accent-blue)" }}
+        style={{ height: "55px" }}
       >
         Add new device
       </Button>

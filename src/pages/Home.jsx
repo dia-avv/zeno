@@ -43,7 +43,6 @@ export default function Home() {
           }}
           style={{
             height: "55px",
-            backgroundColor: "var(--accent-blue)",
             width: "100%",
           }}
         >
