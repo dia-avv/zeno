@@ -1,35 +1,25 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import Button from "../UI/Button";
+import { WaitingMascot } from "../components/WaitingMascot";
 import "./WelcomeScreen.css";
 
-export default function WelcomeScreen() {
+export default function WelcomeScreen({ onComplete }) {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/home");
-      }
-    });
-  }, [navigate]);
-
+  // Session check is handled in App.jsx
   const handleGetStarted = () => {
-    navigate("/login");
+    if (onComplete) onComplete();
+    else navigate("/preboarding");
   };
 
   return (
     <div className="welcome-root">
       <div className="welcome-mascot">
-        <div className="mascot-house">
-          <div className="mascot-roof" />
-          <div className="mascot-body" />
-          <div className="mascot-door" />
-          <div className="mascot-eyes" />
-          <div className="mascot-smile" />
-        </div>
+        <WaitingMascot />
       </div>
-      <h1 className="welcome-title">Welcome to SafeHome</h1>
+      <h1 className="welcome-title">Welcome to Zeno!</h1>
       <p className="welcome-desc">
         Never worry about leaving devices on again. Your peaceful home companion
         is here to help.
@@ -39,9 +29,14 @@ export default function WelcomeScreen() {
         <li>🏠 Personalized device reminders</li>
         <li>😌 Peace of mind, anywhere</li>
       </ul>
-      <button className="welcome-btn" onClick={handleGetStarted}>
+      <Button
+        variant="primary"
+        onClick={handleGetStarted}
+        style={{ marginTop: 16, minWidth: "100%" }}
+        className="btn btn--primary btn--no-flex"
+      >
         Get Started
-      </button>
+      </Button>
     </div>
   );
 }

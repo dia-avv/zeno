@@ -50,3 +50,7 @@
 .btn-label {
   display: inline;
 }
+
+.btn--no-flex {
+  flex: none !important;
+}

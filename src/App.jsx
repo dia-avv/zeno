@@ -8,12 +8,16 @@ import Community from "./pages/Community";
 import Navbar from "./components/NavBar";
 import TopBar from "./components/TopBar";
 import WelcomeScreen from "./pages/WelcomeScreen";
+import PreboardingScreen from "./pages/PreboardingScreen";
 import AuthPage from "./pages/AuthPage";
 import { supabase } from "./lib/supabaseClient";
 
 function App() {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [session, setSession] = useState(null);
+  const [preboarded, setPreboarded] = useState(() => {
+    return localStorage.getItem("preboarded") === "true";
+  });
   const location = useLocation();
 
   useEffect(() => {
@@ -39,9 +43,35 @@ function App() {
     return <AuthPage onBack={() => (window.location.href = "/zeno/")} />;
   }
 
-  // Show WelcomeScreen if not logged in and not on /login or /signup
-  if (!session) {
-    return <WelcomeScreen />;
+  // Show PreboardingScreen if not preboarded and not logged in
+  if (!session && !preboarded && location.pathname === "/preboarding") {
+    return (
+      <PreboardingScreen
+        onComplete={() => {
+          localStorage.setItem("preboarded", "true");
+          setPreboarded(true);
+          window.location.href = "/zeno/login";
+        }}
+      />
+    );
+  }
+
+  // Show WelcomeScreen if not preboarded and not logged in and not on /preboarding
+  if (!session && !preboarded) {
+    return (
+      <WelcomeScreen
+        onComplete={() => (window.location.href = "/zeno/preboarding")}
+      />
+    );
+  }
+
+  // Show WelcomeScreen if not logged in and preboarded (fallback)
+  if (!session && preboarded) {
+    return (
+      <WelcomeScreen
+        onComplete={() => (window.location.href = "/zeno/login")}
+      />
+    );
   }
 
   return (

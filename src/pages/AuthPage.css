@@ -1,11 +1,11 @@
 .auth-root {
-  min-height: 100vh;
-  background: #f6f8fa;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
+  color: var(--grey);
 }
 .auth-back {
   background: none;
@@ -17,7 +17,7 @@
   align-self: flex-start;
 }
 .auth-box {
-  background: #fff;
+  background: var(--bg-surface);
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   padding: 32px 24px;
@@ -26,11 +26,13 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  margin-left: auto;
+  margin-right: auto;
 }
 .auth-box h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #222;
+  color: var(--grey);
 }
 .auth-box form > div {
   margin-bottom: 16px;
@@ -38,7 +40,7 @@
 .auth-box label {
   display: block;
   margin-bottom: 6px;
-  color: #444;
+  color: var(--grey);
   font-size: 1rem;
 }
 .auth-box input {
@@ -47,8 +49,8 @@
   border-radius: 8px;
   border: 1.5px solid #e5e7eb;
   font-size: 1rem;
-  background: #f9fafb;
-  color: #222;
+  background: var(--bg);
+  color: var(--grey);
   outline: none;
   transition: border 0.2s;
 }
@@ -56,7 +58,7 @@
   border-color: #3b82f6;
 }
 .auth-error {
-  color: #e11d48;
+  color: var(--red, #e11d48);
   font-size: 0.95rem;
   margin-bottom: 10px;
   text-align: center;
@@ -78,14 +80,44 @@
 .auth-switch {
   text-align: center;
   margin-top: 18px;
-  color: #555;
+  color: var(--grey);
 }
 .auth-switch button {
   background: none;
   border: none;
-  color: #3b82f6;
+  color: var(--secondary-blue);
   cursor: pointer;
   font-size: 1rem;
   text-decoration: underline;
   margin-left: 4px;
+}
+.auth-box form > .adm-field {
+  margin-bottom: 16px;
+}
+
+.auth-box .adm-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--bg);
+  border: 2px solid rgba(91, 143, 185, 0.4);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s ease;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-box .adm-input::placeholder {
+  color: var(--text-disabled);
+}
+
+.auth-box .adm-input:focus {
+  border-color: var(--accent-blue);
+}
+
+.auth-box .adm-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
 }

@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import "./AuthPage.css";
+import Button from "../UI/Button";
+import TextInput from "../UI/TextInput";
+import PasswordInput from "../UI/PasswordInput";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthPage({ onBack }) {
   const [mode, setMode] = useState("login"); // "login" or "signup"
@@ -8,6 +12,20 @@ export default function AuthPage({ onBack }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session) {
+          navigate("/", { replace: true });
+        }
+      }
+    );
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const resetFields = () => {
     setName("");
@@ -46,45 +64,41 @@ export default function AuthPage({ onBack }) {
 
   return (
     <div className="auth-root">
-      <button className="auth-back" onClick={onBack}>
+      <Button
+        variant="secondary"
+        onClick={onBack}
+        style={{ marginBottom: 24, alignSelf: "flex-start" }}
+        className="btn btn--primary btn--no-flex"
+      >
         ← Back
-      </button>
+      </Button>
       <div className="auth-box">
         <h2>{mode === "login" ? "Log In" : "Create Account"}</h2>
         <form onSubmit={handleSubmit}>
           {mode === "signup" && (
-            <div>
-              <label>Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-              />
-            </div>
+            <TextInput
+              label="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+            />
           )}
-          <div>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@email.com"
-            />
-          </div>
-          <div>
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-            />
-          </div>
+          <TextInput
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@email.com"
+          />
+          <PasswordInput
+            label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
           {error && <div className="auth-error">{error}</div>}
-          <button type="submit" className="auth-submit">
+          <Button type="submit" variant="primary" style={{ marginTop: 8 }}>
             {mode === "login" ? "Log In" : "Sign Up"}
-          </button>
+          </Button>
         </form>
         <div className="auth-switch">
           {mode === "login" ? (

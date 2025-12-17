@@ -1,11 +1,12 @@
 .welcome-root {
   min-height: 100vh;
-  background: #f6f8fa;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
+  color: var(--grey);
 }
 .welcome-mascot {
   margin-bottom: 24px;
@@ -75,11 +76,11 @@
 .welcome-title {
   font-size: 2rem;
   margin-bottom: 12px;
-  color: #222;
+  color: var(--grey);
   text-align: center;
 }
 .welcome-desc {
-  color: #555;
+  color: var(--text-secondary);
   text-align: center;
   margin-bottom: 20px;
   max-width: 320px;
@@ -89,21 +90,9 @@
   padding: 0;
   margin: 0 0 28px 0;
   text-align: left;
+  color: var(--grey);
 }
 .welcome-features li {
   margin-bottom: 8px;
   font-size: 1.1rem;
-}
-.welcome-btn {
-  background: #3b82f6;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 32px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.welcome-btn:hover {
-  background: #2563eb;
 }
