@@ -4,19 +4,36 @@ import Button from "../UI/Button";
 import { Mascot } from "../components/Mascot";
 import "./Home.css";
 
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
+
 export default function Home() {
   const quickCheckRef = useRef();
   const [allChecked, setAllChecked] = useState(false);
+  const [session, setSession] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, [location.pathname]);
+
   return (
     <div className="home-root">
       <div className="home-mascot-placeholder">
         <Mascot zen={allChecked} />
       </div>
-      <QuickCheckCard
-        ref={quickCheckRef}
-        onAlertChange={(alert) => setAllChecked(!alert)}
-      />
-      <div style={{ marginTop: 32, textAlign: "center" }}>
+      <div style={{ marginBottom: 32, textAlign: "center" }}>
         <Button
           variant="primary"
           onClick={() => {
@@ -33,6 +50,11 @@ export default function Home() {
           All Done
         </Button>
       </div>
+      <QuickCheckCard
+        ref={quickCheckRef}
+        onAlertChange={(alert) => setAllChecked(!alert)}
+        session={session}
+      />
     </div>
   );
 }

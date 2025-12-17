@@ -5,7 +5,7 @@ import CheckListItem from "./CheckListItem";
 import PhotoPromptModal from "./PhotoPromptModal";
 
 const QuickCheckCard = forwardRef(function QuickCheckCard(
-  { onAlertChange },
+  { onAlertChange, session },
   ref
 ) {
   const [items, setItems] = useState([]);
@@ -13,9 +13,11 @@ const QuickCheckCard = forwardRef(function QuickCheckCard(
 
   useEffect(() => {
     async function fetchItems() {
+      if (!session?.user?.id) return;
       const { data, error } = await supabase
         .from("devices")
-        .select("id,name,room,icon,color,enabled");
+        .select("id,name,room,icon,color,enabled,account_id")
+        .eq("account_id", session.user.id);
       if (!error && data) {
         setItems(
           data.map((d) => ({
@@ -30,7 +32,7 @@ const QuickCheckCard = forwardRef(function QuickCheckCard(
       }
     }
     fetchItems();
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     const allChecked = items.every((item) => item.checked);

@@ -9,10 +9,12 @@ import Navbar from "./components/NavBar";
 import TopBar from "./components/TopBar";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import PreboardingScreen from "./pages/PreboardingScreen";
+import SetupWizard from "./pages/SetupWizard";
 import AuthPage from "./pages/AuthPage";
 import { supabase } from "./lib/supabaseClient";
 
 function App() {
+  // All hooks at the top
   const [sessionChecked, setSessionChecked] = useState(false);
   const [session, setSession] = useState(null);
   const [preboarded, setPreboarded] = useState(() => {
@@ -20,6 +22,7 @@ function App() {
   });
   const location = useLocation();
   const navigate = useNavigate();
+  const setupComplete = localStorage.getItem("setupComplete") === "true";
 
   // Handle GitHub Pages redirect param for deep linking
   useEffect(() => {
@@ -51,6 +54,18 @@ function App() {
     };
   }, []);
 
+  // SetupWizard redirect after login for new users
+  useEffect(() => {
+    if (
+      session &&
+      preboarded &&
+      !setupComplete &&
+      location.pathname !== "/setup"
+    ) {
+      navigate("/setup", { replace: true });
+    }
+  }, [session, preboarded, setupComplete, location.pathname, navigate]);
+
   // Show nothing until session is checked
   if (!sessionChecked) return null;
 
@@ -66,8 +81,26 @@ function App() {
         onComplete={() => {
           localStorage.setItem("preboarded", "true");
           setPreboarded(true);
-          window.location.href = "/zeno/login";
+          window.location.href = "/zeno/setup";
         }}
+      />
+    );
+  }
+
+  // Show SetupWizard after login for new users
+  if (
+    session &&
+    preboarded &&
+    !setupComplete &&
+    location.pathname === "/setup"
+  ) {
+    return (
+      <SetupWizard
+        onComplete={() => {
+          localStorage.setItem("setupComplete", "true");
+          navigate("/", { replace: true });
+        }}
+        onBack={() => navigate("/", { replace: true })}
       />
     );
   }
@@ -107,8 +140,20 @@ function App() {
               onComplete={() => {
                 localStorage.setItem("preboarded", "true");
                 setPreboarded(true);
+                window.location.href = "/zeno/setup";
+              }}
+            />
+          }
+        />
+        <Route
+          path="/setup"
+          element={
+            <SetupWizard
+              onComplete={() => {
+                localStorage.setItem("setupComplete", "true");
                 window.location.href = "/zeno/login";
               }}
+              onBack={() => (window.location.href = "/zeno/preboarding")}
             />
           }
         />

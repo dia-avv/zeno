@@ -11,19 +11,39 @@ export default function Devices() {
   const [devices, setDevices] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(null);
 
-  async function fetchDevices() {
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function fetchDevices(userId) {
     setLoading(true);
+    if (!userId) {
+      setDevices([]);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("devices")
-      .select("id,name,color,icon,room,enabled,reminder_time")
+      .select("id,name,color,icon,room,enabled,reminder_time,account_id")
+      .eq("account_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Failed to fetch devices:", error);
       setDevices([]);
     } else {
-      // Map DB snake_case to your UI camelCase
       setDevices(
         (data ?? []).map((d) => ({
           id: d.id,
@@ -36,13 +56,14 @@ export default function Devices() {
         }))
       );
     }
-
     setLoading(false);
   }
 
   useEffect(() => {
-    fetchDevices();
-  }, []);
+    if (session?.user?.id) {
+      fetchDevices(session.user.id);
+    }
+  }, [session]);
 
   async function handleToggle(id) {
     // optimistic UI: flip locally first
@@ -88,6 +109,10 @@ export default function Devices() {
   async function handleAdd(newDevice) {
     // Expecting AddDeviceModal to send something like:
     // { name, room, icon, color, enabled, reminderTime }
+    if (!session?.user?.id) {
+      console.error("No user session, cannot add device");
+      return;
+    }
     const payload = {
       name: newDevice.name,
       room: newDevice.room,
@@ -95,12 +120,13 @@ export default function Devices() {
       color: newDevice.color,
       enabled: newDevice.enabled ?? false,
       reminder_time: newDevice.reminderTime ?? null,
+      account_id: session.user.id,
     };
 
     const { data, error } = await supabase
       .from("devices")
       .insert(payload)
-      .select("id,name,color,icon,room,enabled,reminder_time")
+      .select("id,name,color,icon,room,enabled,reminder_time,account_id")
       .single();
 
     if (error) {
