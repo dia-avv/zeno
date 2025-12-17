@@ -76,6 +76,8 @@ export default function SetupWizard({ onBack, onComplete }) {
           theme: selectedTheme.key,
           has_reminders: hasReminders,
           location_name: isAtDoor ? locationName : null,
+          setup_complete: true,
+          setup_completed_at: new Date().toISOString(),
         };
 
         const { error: upsertError } = await supabase

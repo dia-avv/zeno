@@ -33,7 +33,9 @@ function App() {
   const navigate = useNavigate();
 
   const inferredSetupComplete =
-    !!account && account.theme != null && account.has_reminders != null;
+    !!account &&
+    (account.setup_complete === true ||
+      (account.has_reminders !== null && account.has_reminders !== undefined));
   const setupComplete = setupJustCompleted || inferredSetupComplete;
 
   // Default theme for signed-out screens (Welcome/Preboarding/Auth)
@@ -142,7 +144,7 @@ function App() {
     }
   }, [session, accountChecked, setupComplete, location.pathname, navigate]);
 
-  // Show nothing until session + account are checked
+  // Show nothing until session and account are checked
   if (!sessionChecked) return null;
   if (session && !accountChecked) return null;
 
