@@ -1,10 +1,20 @@
 import { useState } from "react";
-import { deviceTemplates } from "../constants/deviceTemplates";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, Bell, MapPin, Palette, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import Button from "../UI/Button";
 import "./SetupWizard.css";
+
+const deviceOptions = [
+  { name: "Hair Straightener", icon: "💇" },
+  { name: "Coffee Maker", icon: "☕" },
+  { name: "Lamp", icon: "💡" },
+  { name: "Iron", icon: "👔" },
+  { name: "Stove", icon: "🔥" },
+  { name: "Curling Iron", icon: "💁" },
+  { name: "Space Heater", icon: "🌡️" },
+  { name: "Candles", icon: "🕯️" },
+];
 
 const themeColors = [
   { name: "Ocean Blue", primary: "#5b8fb9", secondary: "#111c2e" },
@@ -125,32 +135,21 @@ export default function SetupWizard({ onComplete, onBack }) {
               Select all the devices you want to keep track of
             </div>
             <div className="setupwizard-device-grid">
-              {deviceTemplates.map((template) => {
-                const selected = selectedDevices.some(
-                  (d) => d.icon === template.icon
-                );
-                return (
-                  <button
-                    key={template.icon}
-                    type="button"
-                    className={`setupwizard-device-btn${
-                      selected ? " selected" : ""
-                    }`}
-                    onClick={() =>
-                      toggleDevice({
-                        name: template.label,
-                        icon: template.icon,
-                        color: template.color,
-                      })
-                    }
-                  >
-                    <span className="setupwizard-device-icon">
-                      <template.IconComponent size={20} />
-                    </span>
-                    <span>{template.label}</span>
-                  </button>
-                );
-              })}
+              {deviceOptions.map((device) => (
+                <button
+                  key={device.name}
+                  type="button"
+                  className={`setupwizard-device-btn${
+                    selectedDevices.some((d) => d.name === device.name)
+                      ? " selected"
+                      : ""
+                  }`}
+                  onClick={() => toggleDevice(device)}
+                >
+                  <span className="setupwizard-device-icon">{device.icon}</span>
+                  <span>{device.name}</span>
+                </button>
+              ))}
             </div>
             <div className="setupwizard-add-device">
               <label>Add custom device</label>

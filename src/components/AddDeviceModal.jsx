@@ -18,9 +18,39 @@ import Button from "../UI/Button";
 import PlusIcon from "../assets/icons/plus.svg?react";
 import "./AddDeviceModal.css";
 import DefaultDeviceIcon from "../assets/icons/default-device.svg?react";
-import { deviceTemplates } from "../constants/deviceTemplates";
 
 export default function AddDeviceModal({ isOpen, onClose, onAdd }) {
+  const deviceTemplates = [
+    {
+      icon: "flame",
+      label: "Hair straightener",
+      color: "#3d2a2a",
+      IconComponent: Flame,
+    },
+    { icon: "lamp", label: "Lamp", color: "#3d3a2a", IconComponent: Lamp },
+    {
+      icon: "smartphone",
+      label: "Phone charger",
+      color: "#2a2f3d",
+      IconComponent: Smartphone,
+    },
+    {
+      icon: "coffee",
+      label: "Coffee maker",
+      color: "#332a3d",
+      IconComponent: Coffee,
+    },
+    { icon: "tv", label: "TV", color: "#3d2a38", IconComponent: Tv },
+    { icon: "iron", label: "Iron", color: "#3d2a2f", IconComponent: Zap },
+    { icon: "fan", label: "Fan", color: "#2a3a3d", IconComponent: Fan },
+    {
+      icon: "heater",
+      label: "Space heater",
+      color: "#3d302a",
+      IconComponent: Droplet,
+    },
+  ];
+
   const [step, setStep] = useState("type");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [deviceName, setDeviceName] = useState("");
