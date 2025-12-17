@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Devices from "./pages/Devices";
 import AddDevice from "./pages/AddDevice";
@@ -19,23 +19,22 @@ function App() {
     return localStorage.getItem("preboarded") === "true";
   });
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Handle GitHub Pages redirect param for deep linking
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get("redirect");
     if (redirect) {
-      // Remove ?redirect= from URL and navigate
+      // Remove ?redirect= from URL and navigate using React Router
       window.history.replaceState(
         {},
         "",
         window.location.pathname.replace(/\/$/, "")
       );
-      window.location.hash = "";
-      window.location.search = "";
-      window.location.href = `/zeno${redirect}`;
+      navigate(redirect, { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
