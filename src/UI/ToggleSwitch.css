@@ -1,0 +1,32 @@
+.toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.toggle-track {
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-track.on {
+  background-color: var(--accent-blue);
+}
+
+.toggle-track.off {
+  background-color: var(--dark-grey);
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  transition: left 0.18s cubic-bezier(0.2, 0.9, 0.2, 1);
+}

@@ -1,0 +1,91 @@
+/* Navigation container (floating full-width pill) */
+.navMenu {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 20px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border-radius: 24px;
+  border: 1px solid var(--modal-border);
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.2);
+  z-index: 60;
+  padding: 8px 20px;
+  width: calc(100% - 32px);
+}
+
+/* Horizontal list - single consolidated block */
+.navMenu-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  position: relative; /* positioning context for the moving indicator */
+}
+
+/* Link styles - consolidated */
+.navMenu-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 12px;
+  min-width: 56px;
+  border-radius: 10px;
+  color: var(--grey);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.navMenu-link.is-active {
+  color: var(--accent-blue);
+}
+
+.navMenu-icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+
+/* visually hidden label (keeps accessibility while showing only icons) */
+.navMenu-label {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Hide any per-item static indicators (we use a single moving indicator) */
+.navMenu-item > .navMenu-indicator {
+  display: none;
+}
+
+/* Moving teal indicator positioned relative to the list */
+.navMenu-list > .navMenu-indicator {
+  display: block;
+  position: absolute;
+  bottom: -12px; /* place under the nav with more space */
+  left: var(--indicator-x, 0px);
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent-blue);
+  box-shadow: 0 2px 6px rgba(20, 184, 166, 0.2);
+  transition: left 200ms cubic-bezier(0.2, 0.9, 0.2, 1), transform 200ms;
+  z-index: 65;
+}

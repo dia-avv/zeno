@@ -1,0 +1,39 @@
+:root {
+  /* brand colors */
+  --primary-blue: #0f172a;
+  --secondary-blue: #293a5a;
+  --accent-blue: #5b8fb9;
+
+  /* backgrounds */
+  --bg: #0b1220;
+  --bg-surface: #111c2e;
+
+  /* text */
+  --text-primary: #e6eaf2;
+  --text-secondary: #9aa7c7;
+  --text-disabled: #5c6785;
+
+  /* legacy / util variables expected by components */
+  --fg: var(--text-primary);
+  --indicator: var(--accent-blue);
+  --border: #e5e7eb;
+  --shadow: 0 6px 18px rgba(2, 6, 23, 0.08);
+  --radius: 12px;
+
+  /* modal/controls border colors (match AddDeviceModal) */
+  --modal-border: rgba(91, 143, 185, 0.2);
+  --modal-border-strong: rgba(91, 143, 185, 0.4);
+
+  --grey: #d4d4d4;
+  --dark-grey: #666666;
+
+  /* other colors */
+  --green: #3f7f6b;
+  --green-bg: #132d26;
+
+  --orange: #c08a3e;
+  --orange-bg: #2a1f12;
+
+  --red: #8f3b3b;
+  --red-bg: #2a1416;
+}

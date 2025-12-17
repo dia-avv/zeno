@@ -1,0 +1,59 @@
+.photo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.photo-modal {
+  background: var(--bg-surface, #fff);
+  border-radius: 18px;
+  padding: 32px 24px 24px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  min-width: 320px;
+  max-width: 90vw;
+  position: relative;
+  text-align: center;
+}
+.photo-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+.photo-modal-desc {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.photo-modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.photo-modal-btn {
+  background: var(--accent-blue, #3ba9fa);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.photo-modal-btn-skip {
+  background: var(--text-disabled, #bbb);
+  color: var(--text-primary, #222);
+}
+.photo-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-secondary, #888);
+  cursor: pointer;
+}

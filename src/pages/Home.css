@@ -1,0 +1,14 @@
+.home-mascot-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 160px;
+  margin-top: 24px;
+}
+
+.home-mascot-placeholder img {
+  width: 300px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 16px;
+}

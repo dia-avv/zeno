@@ -1,0 +1,31 @@
+.topbar-root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 64px;
+  background: var(--bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  top: 0;
+  right: 0;
+  left: 0;
+  position: fixed;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  color: var(--grey);
+}
+
+.topbar-bell {
+  height: 28px;
+  width: 28px;
+  cursor: pointer;
+  display: block;
+}
