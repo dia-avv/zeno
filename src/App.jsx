@@ -23,41 +23,23 @@ function App() {
   // All hooks at the top
   const [sessionChecked, setSessionChecked] = useState(false);
   const [session, setSession] = useState(null);
+  const [accountChecked, setAccountChecked] = useState(false);
+  const [account, setAccount] = useState(null);
+  const [setupJustCompleted, setSetupJustCompleted] = useState(false);
   const [preboarded, setPreboarded] = useState(() => {
     return localStorage.getItem("preboarded") === "true";
   });
   const location = useLocation();
   const navigate = useNavigate();
-  const setupComplete = localStorage.getItem("setupComplete") === "true";
 
-  // Apply persisted theme ASAP (works before login too)
+  const inferredSetupComplete =
+    !!account && account.theme != null && account.has_reminders != null;
+  const setupComplete = setupJustCompleted || inferredSetupComplete;
+
+  // Default theme for signed-out screens (Welcome/Preboarding/Auth)
   useEffect(() => {
-    applyTheme(getStoredThemeKey());
+    applyTheme("ocean");
   }, []);
-
-  // After login, sync theme from the user's account row
-  useEffect(() => {
-    const userId = session?.user?.id;
-    if (!userId) return;
-
-    let cancelled = false;
-    (async () => {
-      const { data, error } = await supabase
-        .from("accounts")
-        .select("theme")
-        .eq("id", userId)
-        .maybeSingle();
-
-      if (cancelled || error) return;
-      const themeKey = normalizeThemeKey(data?.theme);
-      applyTheme(themeKey);
-      storeThemeKey(themeKey);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [session?.user?.id]);
 
   // Handle GitHub Pages redirect param for deep linking
   useEffect(() => {
@@ -78,10 +60,23 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setSessionChecked(true);
+
+      // If already signed in, apply last known theme immediately
+      if (session?.user) {
+        applyTheme(getStoredThemeKey());
+      }
     });
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
+
+        // Reset theme on logout so WelcomeScreen is always default
+        if (!session?.user) {
+          applyTheme("ocean");
+          storeThemeKey("ocean");
+        } else {
+          applyTheme(getStoredThemeKey());
+        }
       }
     );
     return () => {
@@ -89,20 +84,67 @@ function App() {
     };
   }, []);
 
+  // Fetch the signed-in user's account record (drives setup completion + theme)
+  useEffect(() => {
+    const userId = session?.user?.id;
+
+    // reset per-user state
+    setSetupJustCompleted(false);
+
+    if (!userId) {
+      setAccount(null);
+      setAccountChecked(true);
+      return;
+    }
+
+    let cancelled = false;
+    setAccountChecked(false);
+
+    (async () => {
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to fetch account:", error);
+        setAccount(null);
+        setAccountChecked(true);
+        return;
+      }
+
+      setAccount(data ?? null);
+      setAccountChecked(true);
+
+      // Sync theme from account row (and persist locally)
+      const themeKey = normalizeThemeKey(data?.theme);
+      applyTheme(themeKey);
+      storeThemeKey(themeKey);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id]);
+
   // SetupWizard redirect after login for new users
   useEffect(() => {
     if (
       session &&
-      preboarded &&
+      accountChecked &&
       !setupComplete &&
       location.pathname !== "/setup"
     ) {
       navigate("/setup", { replace: true });
     }
-  }, [session, preboarded, setupComplete, location.pathname, navigate]);
+  }, [session, accountChecked, setupComplete, location.pathname, navigate]);
 
-  // Show nothing until session is checked
+  // Show nothing until session + account are checked
   if (!sessionChecked) return null;
+  if (session && !accountChecked) return null;
 
   // Show AuthPage for /login or /signup
   if (!session && ["/login", "/signup"].includes(location.pathname)) {
@@ -116,18 +158,18 @@ function App() {
         onComplete={() => {
           localStorage.setItem("preboarded", "true");
           setPreboarded(true);
-          window.location.href = "/zeno/setup";
+          window.location.href = "/zeno/signup";
         }}
       />
     );
   }
 
-  // Show SetupWizard after login for new users
-  if (session && preboarded && !setupComplete) {
+  // Show SetupWizard after login for new accounts (account-based, not device-based)
+  if (session && !setupComplete) {
     return (
       <SetupWizard
         onComplete={() => {
-          localStorage.setItem("setupComplete", "true");
+          setSetupJustCompleted(true);
           navigate("/", { replace: true });
         }}
         onBack={() => navigate("/", { replace: true })}
@@ -170,7 +212,7 @@ function App() {
               onComplete={() => {
                 localStorage.setItem("preboarded", "true");
                 setPreboarded(true);
-                window.location.href = "/zeno/setup";
+                window.location.href = "/zeno/signup";
               }}
             />
           }
@@ -178,13 +220,16 @@ function App() {
         <Route
           path="/setup"
           element={
-            <SetupWizard
-              onComplete={() => {
-                localStorage.setItem("setupComplete", "true");
-                window.location.href = "/zeno/login";
-              }}
-              onBack={() => (window.location.href = "/zeno/preboarding")}
-            />
+            session && !setupComplete ? (
+              <SetupWizard
+                onComplete={() => {
+                  window.location.href = "/zeno/";
+                }}
+                onBack={() => (window.location.href = "/zeno/")}
+              />
+            ) : (
+              <Home />
+            )
           }
         />
         <Route
