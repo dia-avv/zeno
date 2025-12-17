@@ -85,6 +85,18 @@ function App() {
         <Route path="/profiles" element={<Profiles />} />
         <Route path="/community" element={<Community />} />
         <Route
+          path="/preboarding"
+          element={
+            <PreboardingScreen
+              onComplete={() => {
+                localStorage.setItem("preboarded", "true");
+                setPreboarded(true);
+                window.location.href = "/zeno/login";
+              }}
+            />
+          }
+        />
+        <Route
           path="/login"
           element={
             <AuthPage onBack={() => (window.location.href = "/zeno/")} />
