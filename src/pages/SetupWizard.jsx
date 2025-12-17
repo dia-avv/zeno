@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, Bell, MapPin, Palette, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import Button from "../UI/Button";
+import { applyTheme, storeThemeKey } from "../lib/theme";
 import "./SetupWizard.css";
 
 const deviceOptions = [
@@ -17,41 +18,41 @@ const deviceOptions = [
 ];
 
 const themeColors = [
-  { name: "Ocean Blue", primary: "#5b8fb9", secondary: "#111c2e" },
-  { name: "Forest Green", primary: "#6b9b7c", secondary: "#1a2e1f" },
-  { name: "Sunset Purple", primary: "#9b7cb8", secondary: "#241e2e" },
-  { name: "Warm Amber", primary: "#b89b5b", secondary: "#2e271e" },
-  { name: "Rose Pink", primary: "#b87c9b", secondary: "#2e1e27" },
+  {
+    key: "ocean",
+    name: "Ocean Blue",
+    primary: "#5b8fb9",
+    secondary: "#111c2e",
+  },
+  {
+    key: "forest",
+    name: "Forest Green",
+    primary: "#6b9b7c",
+    secondary: "#1a2e1f",
+  },
+  {
+    key: "sunset",
+    name: "Sunset Purple",
+    primary: "#9b7cb8",
+    secondary: "#241e2e",
+  },
+  {
+    key: "amber",
+    name: "Warm Amber",
+    primary: "#b89b5b",
+    secondary: "#2e271e",
+  },
+  { key: "rose", name: "Rose Pink", primary: "#b87c9b", secondary: "#2e1e27" },
 ];
 
-export default function SetupWizard({ onComplete, onBack }) {
+export default function SetupWizard({ onBack, onComplete }) {
   const [step, setStep] = useState(1);
-  const [selectedDevices, setSelectedDevices] = useState([]);
-  const [customDevice, setCustomDevice] = useState("");
   const [hasReminders, setHasReminders] = useState(true);
   const [isAtDoor, setIsAtDoor] = useState(false);
   const [locationName, setLocationName] = useState("");
   const [selectedTheme, setSelectedTheme] = useState(themeColors[0]);
   const [loading, setLoading] = useState(false);
-  const totalSteps = 4;
-
-  const toggleDevice = (device) => {
-    if (selectedDevices.some((d) => d.name === device.name)) {
-      setSelectedDevices(selectedDevices.filter((d) => d.name !== device.name));
-    } else {
-      setSelectedDevices([...selectedDevices, device]);
-    }
-  };
-
-  const addCustomDevice = () => {
-    if (customDevice.trim()) {
-      setSelectedDevices([
-        ...selectedDevices,
-        { name: customDevice, icon: "📱" },
-      ]);
-      setCustomDevice("");
-    }
-  };
+  const totalSteps = 3;
 
   const handleNext = async () => {
     if (step < totalSteps) {
@@ -64,23 +65,10 @@ export default function SetupWizard({ onComplete, onBack }) {
       // Upsert account
       await supabase.from("accounts").upsert({
         id: user.id,
-        theme: selectedTheme.name,
+        theme: selectedTheme.key,
         has_reminders: hasReminders,
         location_name: isAtDoor ? locationName : null,
       });
-      // Insert devices
-      if (selectedDevices.length > 0) {
-        const deviceRows = selectedDevices.map((d) => ({
-          account_id: user.id,
-          name: d.name,
-          icon: d.icon,
-          color: d.color ?? "#5b8fb9", // default color if not set
-          room: d.room ?? "",
-          enabled: d.enabled ?? false,
-          reminder_time: d.reminderTime ?? null,
-        }));
-        await supabase.from("devices").insert(deviceRows);
-      }
       setLoading(false);
       onComplete && onComplete();
     }
@@ -92,8 +80,7 @@ export default function SetupWizard({ onComplete, onBack }) {
   };
 
   const canProceed = () => {
-    if (step === 1) return selectedDevices.length > 0;
-    if (step === 3 && isAtDoor) return locationName.trim().length > 0;
+    if (step === 2 && isAtDoor) return locationName.trim().length > 0;
     return true;
   };
 
@@ -125,61 +112,8 @@ export default function SetupWizard({ onComplete, onBack }) {
         </div>
       </div>
       <div className="setupwizard-content">
-        {/* Step 1: Add Devices */}
+        {/* Step 1: Set Reminders */}
         {step === 1 && (
-          <div>
-            <div className="setupwizard-step-title">
-              What devices do you want to monitor?
-            </div>
-            <div className="setupwizard-step-desc">
-              Select all the devices you want to keep track of
-            </div>
-            <div className="setupwizard-device-grid">
-              {deviceOptions.map((device) => (
-                <button
-                  key={device.name}
-                  type="button"
-                  className={`setupwizard-device-btn${
-                    selectedDevices.some((d) => d.name === device.name)
-                      ? " selected"
-                      : ""
-                  }`}
-                  onClick={() => toggleDevice(device)}
-                >
-                  <span className="setupwizard-device-icon">{device.icon}</span>
-                  <span>{device.name}</span>
-                </button>
-              ))}
-            </div>
-            <div className="setupwizard-add-device">
-              <label>Add custom device</label>
-              <div className="setupwizard-add-device-row">
-                <input
-                  type="text"
-                  value={customDevice}
-                  onChange={(e) => setCustomDevice(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addCustomDevice()}
-                  placeholder="e.g., Toaster"
-                />
-                <button
-                  className="add-btn"
-                  type="button"
-                  onClick={addCustomDevice}
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
-            </div>
-            {selectedDevices.length > 0 && (
-              <div className="setupwizard-selected-count">
-                {selectedDevices.length} device
-                {selectedDevices.length !== 1 ? "s" : ""} selected
-              </div>
-            )}
-          </div>
-        )}
-        {/* Step 2: Set Reminders */}
-        {step === 2 && (
           <div>
             <div className="setupwizard-step-title">
               Enable Daily Reminders?
@@ -187,38 +121,48 @@ export default function SetupWizard({ onComplete, onBack }) {
             <div className="setupwizard-step-desc">
               Get gentle notifications to check your devices before leaving home
             </div>
-            <button
+            <Button
               type="button"
+              variant={hasReminders ? "primary" : "secondary"}
               className={`setupwizard-reminder-btn${
                 hasReminders ? " selected" : ""
               }`}
               onClick={() => setHasReminders(true)}
+              style={{ width: "100%", marginBottom: 8 }}
             >
-              <span>Yes, remind me daily</span>
+              Yes, remind me daily
               {hasReminders && (
-                <span className="setupwizard-reminder-check">
+                <span
+                  className="setupwizard-reminder-check"
+                  style={{ marginLeft: 8 }}
+                >
                   <Check size={16} />
                 </span>
               )}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant={!hasReminders ? "primary" : "secondary"}
               className={`setupwizard-reminder-btn${
                 !hasReminders ? " selected" : ""
               }`}
               onClick={() => setHasReminders(false)}
+              style={{ width: "100%" }}
             >
-              <span>No, I'll check manually</span>
+              No, I'll check manually
               {!hasReminders && (
-                <span className="setupwizard-reminder-check">
+                <span
+                  className="setupwizard-reminder-check"
+                  style={{ marginLeft: 8 }}
+                >
                   <Check size={16} />
                 </span>
               )}
-            </button>
+            </Button>
           </div>
         )}
-        {/* Step 3: Set Location */}
-        {step === 3 && (
+        {/* Step 2: Set Location */}
+        {step === 2 && (
           <div>
             <div className="setupwizard-step-title">
               Set Your Entry Location
@@ -263,23 +207,40 @@ export default function SetupWizard({ onComplete, onBack }) {
             )}
           </div>
         )}
-        {/* Step 4: Choose Theme */}
-        {step === 4 && (
+        {/* Step 3: Choose Theme */}
+        {step === 3 && (
           <div>
             <div className="setupwizard-step-title">Choose Your Theme</div>
             <div className="setupwizard-step-desc">
               Pick colors that make you feel at home
             </div>
             {themeColors.map((theme) => (
-              <button
+              <Button
                 key={theme.name}
                 type="button"
+                variant={
+                  selectedTheme.name === theme.name ? "primary" : "secondary"
+                }
                 className={`setupwizard-theme-btn${
                   selectedTheme.name === theme.name ? " selected" : ""
                 }`}
-                onClick={() => setSelectedTheme(theme)}
+                onClick={() => {
+                  setSelectedTheme(theme);
+                  applyTheme(theme.key);
+                  storeThemeKey(theme.key);
+                }}
+                style={{
+                  width: "100%",
+                  marginBottom: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                }}
               >
-                <div className="setupwizard-theme-swatches">
+                <div
+                  className="setupwizard-theme-swatches"
+                  style={{ marginRight: 12 }}
+                >
                   <div
                     className="setupwizard-theme-swatch"
                     style={{ background: theme.primary }}
@@ -291,11 +252,14 @@ export default function SetupWizard({ onComplete, onBack }) {
                 </div>
                 <span>{theme.name}</span>
                 {selectedTheme.name === theme.name && (
-                  <span className="setupwizard-theme-check">
+                  <span
+                    className="setupwizard-theme-check"
+                    style={{ marginLeft: "auto" }}
+                  >
                     <Check size={16} />
                   </span>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
         )}

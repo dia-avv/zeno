@@ -12,6 +12,12 @@ import PreboardingScreen from "./pages/PreboardingScreen";
 import SetupWizard from "./pages/SetupWizard";
 import AuthPage from "./pages/AuthPage";
 import { supabase } from "./lib/supabaseClient";
+import {
+  applyTheme,
+  getStoredThemeKey,
+  normalizeThemeKey,
+  storeThemeKey,
+} from "./lib/theme";
 
 function App() {
   // All hooks at the top
@@ -23,6 +29,35 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const setupComplete = localStorage.getItem("setupComplete") === "true";
+
+  // Apply persisted theme ASAP (works before login too)
+  useEffect(() => {
+    applyTheme(getStoredThemeKey());
+  }, []);
+
+  // After login, sync theme from the user's account row
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("theme")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (cancelled || error) return;
+      const themeKey = normalizeThemeKey(data?.theme);
+      applyTheme(themeKey);
+      storeThemeKey(themeKey);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id]);
 
   // Handle GitHub Pages redirect param for deep linking
   useEffect(() => {
