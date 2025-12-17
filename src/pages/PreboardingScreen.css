@@ -75,8 +75,8 @@
   width: 100%;
   max-width: 320px;
   margin: 0 auto;
-  background: var(--accent-blue);
-  color: #fff;
+  background: var(--secondary-blue);
+  color: var(--grey);
   padding: 16px 0;
   border: none;
   border-radius: 16px;
@@ -86,11 +86,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 2px 8px 0 var(--accent-blue-20, #5b8fb933);
   cursor: pointer;
   transition: box-shadow 0.2s, background 0.2s;
-}
-.preboarding-next:hover {
-  background: var(--accent-blue);
-  box-shadow: 0 4px 16px 0 var(--accent-blue-20, #5b8fb944);
 }

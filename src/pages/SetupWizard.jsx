@@ -110,6 +110,7 @@ export default function SetupWizard({ onBack, onComplete }) {
       <div className="setupwizard-header">
         <button
           onClick={() => (step === 1 ? onBack() : setStep(step - 1))}
+          aria-label="Back"
           style={{
             background: "none",
             border: "none",
