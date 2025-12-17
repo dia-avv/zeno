@@ -12,6 +12,7 @@ import PreboardingScreen from "./pages/PreboardingScreen";
 import AuthPage from "./pages/AuthPage";
 import { supabase } from "./lib/supabaseClient";
 
+
 function App() {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [session, setSession] = useState(null);
@@ -19,6 +20,19 @@ function App() {
     return localStorage.getItem("preboarded") === "true";
   });
   const location = useLocation();
+
+  // Handle GitHub Pages redirect param for deep linking
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    if (redirect) {
+      // Remove ?redirect= from URL and navigate
+      window.history.replaceState({}, '', window.location.pathname.replace(/\/$/, ''));
+      window.location.hash = '';
+      window.location.search = '';
+      window.location.href = `/zeno${redirect}`;
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
