@@ -1,0 +1,27 @@
+.radio-card .btn-label {
+  width: 100%;
+}
+
+.radio-card__inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.radio-card__leading {
+  display: inline-flex;
+  align-items: center;
+}
+
+.radio-card__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radio-card__trailing {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}

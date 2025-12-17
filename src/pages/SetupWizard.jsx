@@ -4,6 +4,7 @@ import { ChevronLeft, Plus, Bell, MapPin, Palette, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import Button from "../UI/Button";
 import { applyTheme, storeThemeKey } from "../lib/theme";
+import RadioCard from "../components/RadioCard";
 import "./SetupWizard.css";
 
 const deviceOptions = [
@@ -121,44 +122,28 @@ export default function SetupWizard({ onBack, onComplete }) {
             <div className="setupwizard-step-desc">
               Get gentle notifications to check your devices before leaving home
             </div>
-            <Button
-              type="button"
-              variant={hasReminders ? "primary" : "secondary"}
+            <RadioCard
+              selected={hasReminders}
+              onSelect={() => setHasReminders(true)}
               className={`setupwizard-reminder-btn${
                 hasReminders ? " selected" : ""
               }`}
-              onClick={() => setHasReminders(true)}
+              trailing={hasReminders ? <Check size={16} /> : null}
               style={{ width: "100%", marginBottom: 8 }}
             >
               Yes, remind me daily
-              {hasReminders && (
-                <span
-                  className="setupwizard-reminder-check"
-                  style={{ marginLeft: 8 }}
-                >
-                  <Check size={16} />
-                </span>
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant={!hasReminders ? "primary" : "secondary"}
+            </RadioCard>
+            <RadioCard
+              selected={!hasReminders}
+              onSelect={() => setHasReminders(false)}
               className={`setupwizard-reminder-btn${
                 !hasReminders ? " selected" : ""
               }`}
-              onClick={() => setHasReminders(false)}
+              trailing={!hasReminders ? <Check size={16} /> : null}
               style={{ width: "100%" }}
             >
               No, I'll check manually
-              {!hasReminders && (
-                <span
-                  className="setupwizard-reminder-check"
-                  style={{ marginLeft: 8 }}
-                >
-                  <Check size={16} />
-                </span>
-              )}
-            </Button>
+            </RadioCard>
           </div>
         )}
         {/* Step 2: Set Location */}
@@ -214,53 +199,39 @@ export default function SetupWizard({ onBack, onComplete }) {
             <div className="setupwizard-step-desc">
               Pick colors that make you feel at home
             </div>
-            {themeColors.map((theme) => (
-              <Button
-                key={theme.name}
-                type="button"
-                variant={
-                  selectedTheme.name === theme.name ? "primary" : "secondary"
-                }
-                className={`setupwizard-theme-btn${
-                  selectedTheme.name === theme.name ? " selected" : ""
-                }`}
-                onClick={() => {
-                  setSelectedTheme(theme);
-                  applyTheme(theme.key);
-                  storeThemeKey(theme.key);
-                }}
-                style={{
-                  width: "100%",
-                  marginBottom: 8,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <div
-                  className="setupwizard-theme-swatches"
-                  style={{ marginRight: 12 }}
+            {themeColors.map((theme) => {
+              const selected = selectedTheme.name === theme.name;
+              return (
+                <RadioCard
+                  key={theme.name}
+                  selected={selected}
+                  onSelect={() => {
+                    setSelectedTheme(theme);
+                    applyTheme(theme.key);
+                    storeThemeKey(theme.key);
+                  }}
+                  className={`setupwizard-theme-btn${
+                    selected ? " selected" : ""
+                  }`}
+                  leading={
+                    <div className="setupwizard-theme-swatches">
+                      <div
+                        className="setupwizard-theme-swatch"
+                        style={{ background: theme.primary }}
+                      />
+                      <div
+                        className="setupwizard-theme-swatch"
+                        style={{ background: theme.secondary }}
+                      />
+                    </div>
+                  }
+                  trailing={selected ? <Check size={16} /> : null}
+                  style={{ width: "100%", marginBottom: 8 }}
                 >
-                  <div
-                    className="setupwizard-theme-swatch"
-                    style={{ background: theme.primary }}
-                  />
-                  <div
-                    className="setupwizard-theme-swatch"
-                    style={{ background: theme.secondary }}
-                  />
-                </div>
-                <span>{theme.name}</span>
-                {selectedTheme.name === theme.name && (
-                  <span
-                    className="setupwizard-theme-check"
-                    style={{ marginLeft: "auto" }}
-                  >
-                    <Check size={16} />
-                  </span>
-                )}
-              </Button>
-            ))}
+                  {theme.name}
+                </RadioCard>
+              );
+            })}
           </div>
         )}
       </div>
