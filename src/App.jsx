@@ -168,7 +168,8 @@ function App() {
   if (session && !setupComplete) {
     return (
       <SetupWizard
-        onComplete={() => {
+        onComplete={(updatedAccount) => {
+          if (updatedAccount) setAccount(updatedAccount);
           setSetupJustCompleted(true);
           navigate("/", { replace: true });
         }}
@@ -222,7 +223,8 @@ function App() {
           element={
             session && !setupComplete ? (
               <SetupWizard
-                onComplete={() => {
+                onComplete={(updatedAccount) => {
+                  if (updatedAccount) setAccount(updatedAccount);
                   window.location.href = "/zeno/";
                 }}
                 onBack={() => (window.location.href = "/zeno/")}

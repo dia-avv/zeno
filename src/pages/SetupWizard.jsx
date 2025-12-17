@@ -53,6 +53,7 @@ export default function SetupWizard({ onBack, onComplete }) {
   const [locationName, setLocationName] = useState("");
   const [selectedTheme, setSelectedTheme] = useState(themeColors[0]);
   const [loading, setLoading] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const totalSteps = 3;
 
   const handleNext = async () => {
@@ -60,18 +61,35 @@ export default function SetupWizard({ onBack, onComplete }) {
       setStep(step + 1);
     } else {
       setLoading(true);
-      // Save to Supabase
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) return;
-      // Upsert account
-      await supabase.from("accounts").upsert({
-        id: user.id,
-        theme: selectedTheme.key,
-        has_reminders: hasReminders,
-        location_name: isAtDoor ? locationName : null,
-      });
-      setLoading(false);
-      onComplete && onComplete();
+      setSaveError(null);
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) throw userError;
+        if (!user) throw new Error("You must be signed in to finish setup.");
+
+        const payload = {
+          id: user.id,
+          theme: selectedTheme.key,
+          has_reminders: hasReminders,
+          location_name: isAtDoor ? locationName : null,
+        };
+
+        const { error: upsertError } = await supabase
+          .from("accounts")
+          .upsert(payload);
+
+        if (upsertError) throw upsertError;
+
+        onComplete?.(payload);
+      } catch (e) {
+        setSaveError(e?.message ?? "Failed to save setup.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -236,6 +254,11 @@ export default function SetupWizard({ onBack, onComplete }) {
         )}
       </div>
       <div className="setupwizard-bottom">
+        {saveError ? (
+          <div style={{ color: "var(--text-secondary)", marginBottom: 8 }}>
+            {saveError}
+          </div>
+        ) : null}
         <Button
           onClick={handleNext}
           disabled={!canProceed() || loading}
