@@ -88,12 +88,7 @@ function App() {
   }
 
   // Show SetupWizard after login for new users
-  if (
-    session &&
-    preboarded &&
-    !setupComplete &&
-    location.pathname === "/setup"
-  ) {
+  if (session && preboarded && !setupComplete) {
     return (
       <SetupWizard
         onComplete={() => {
