@@ -9,7 +9,6 @@ import Navbar from "./components/NavBar";
 import TopBar from "./components/TopBar";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import PreboardingScreen from "./pages/PreboardingScreen";
-import SetupWizard from "./pages/SetupWizard";
 import AuthPage from "./pages/AuthPage";
 import { supabase } from "./lib/supabaseClient";
 
@@ -18,9 +17,6 @@ function App() {
   const [session, setSession] = useState(null);
   const [preboarded, setPreboarded] = useState(() => {
     return localStorage.getItem("preboarded") === "true";
-  });
-  const [setupComplete, setSetupComplete] = useState(() => {
-    return localStorage.getItem("setupComplete") === "true";
   });
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,45 +42,17 @@ function App() {
       setSessionChecked(true);
     });
     const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
-        if (session && !setupComplete) {
-          // Check if user has completed setup (accounts row exists)
-          const { data } = await supabase
-            .from("accounts")
-            .select("id")
-            .eq("id", session.user.id)
-            .single();
-          if (data) {
-            setSetupComplete(true);
-            localStorage.setItem("setupComplete", "true");
-          } else {
-            setSetupComplete(false);
-            localStorage.removeItem("setupComplete");
-          }
-        }
       }
     );
     return () => {
       listener?.subscription.unsubscribe();
     };
-  }, [setupComplete]);
+  }, []);
 
   // Show nothing until session is checked
   if (!sessionChecked) return null;
-
-  // Show SetupWizard after signup if not complete
-  if (session && !setupComplete) {
-    return (
-      <SetupWizard
-        onComplete={() => {
-          setSetupComplete(true);
-          localStorage.setItem("setupComplete", "true");
-          navigate("/", { replace: true });
-        }}
-      />
-    );
-  }
 
   // Show AuthPage for /login or /signup
   if (!session && ["/login", "/signup"].includes(location.pathname)) {
