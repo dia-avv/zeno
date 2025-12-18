@@ -59,15 +59,29 @@
   margin: 32px 0 24px 0;
 }
 .preboarding-dot {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  border-radius: 22px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: none;
+}
+
+/* the visible dot */
+.preboarding-dot::before {
+  content: "";
   width: 8px;
   height: 8px;
   border-radius: 4px;
   background: var(--text-disabled);
-  border: none;
   transition: width 0.2s, background 0.2s;
-  cursor: pointer;
 }
-.preboarding-dot.active {
+
+.preboarding-dot.active::before {
   width: 32px;
   background: var(--accent-blue);
 }
